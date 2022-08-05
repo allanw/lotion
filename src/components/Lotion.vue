@@ -8,9 +8,9 @@
     <draggable tag="div" :list="props.page.blocks"  handle=".handle"
       v-bind="dragOptions" class="-ml-24 space-y-2 pb-4">
       <transition-group type="transition">
-        <BlockComponent :block="block" v-for="block, i in props.page.blocks" :key="i"
+        <BlockComponent :block="block" v-for="block, i in props.page.blocks" :key="i" :id="'block-'+block.id"
           :ref="el => blockElements[i] = (el as unknown as typeof Block)"
-          @deleteBlock="props.page.blocks.splice(i, 1)"
+          @deleteBlock="deleteBlock(i)"
           @newBlock="insertBlock(i)"
           @moveToPrevChar="() => { if (blockElements[i-1]) blockElements[i-1].moveToEnd(); scrollIntoView(); }"
           @moveToNextChar="() => { if (blockElements[i+1]) blockElements[i+1].moveToStart(); scrollIntoView(); }"
@@ -28,8 +28,9 @@
 <script setup lang="ts">
 import { ref, onBeforeUpdate, PropType } from 'vue'
 import { VueDraggableNext as draggable } from 'vue-draggable-next'
-import { Block, BlockType } from '@/utils/types'
+import { Block, BlockType, isTextBlock } from '@/utils/types'
 import BlockComponent from './Block.vue'
+import { v4 as uuidv4 } from 'uuid';
 
 const props = defineProps({
   page: {
@@ -44,7 +45,6 @@ const dragOptions = {
   disabled: false,
   ghostClass: 'ghost',
 }
-
 
 onBeforeUpdate(() => {
   blockElements.value = []
@@ -63,6 +63,7 @@ function scrollIntoView () {
 
 function insertBlock (blockIdx: number) {
   props.page.blocks.splice(blockIdx + 1, 0, {
+    id: uuidv4(),
     type: BlockType.Text,
     details: {
       value: '',
@@ -74,10 +75,16 @@ function insertBlock (blockIdx: number) {
   })
 }
 
-function setBlockType (blockIdx: number, type: BlockType) {
-  if (props.page.blocks[blockIdx].type === BlockType.Text || type === BlockType.OrderedList) {
-    props.page.blocks[blockIdx].details.value = blockElements.value[blockIdx].getTextContent()
+function deleteBlock (blockIdx: number) {
+  props.page.blocks.splice(blockIdx, 1)
+  // Always keep at least one block
+  if (props.page.blocks.length === 0) {
+    insertBlock(0)
   }
+}
+
+function setBlockType (blockIdx: number, type: BlockType) {
+  props.page.blocks[blockIdx].details.value = blockElements.value[blockIdx].getTextContent()
   props.page.blocks[blockIdx].type = type
   if (type === BlockType.Divider) {
     props.page.blocks[blockIdx].details = {}
@@ -86,14 +93,27 @@ function setBlockType (blockIdx: number, type: BlockType) {
 }
 
 function merge (blockIdx: number) {
-  if (props.page.blocks[blockIdx-1].type === BlockType.Text) {
+  // When deleting the first character of non-text block
+  // the block should first turn into a text block
+  if([BlockType.H1, BlockType.H2, BlockType.H3,BlockType.Quote]
+      .includes(props.page.blocks[blockIdx].type)){
+    setBlockType(blockIdx, BlockType.Text)
+    setTimeout(()=>{
+      blockElements.value[blockIdx].moveToStart()
+    })
+    return
+  }
+
+  if (blockIdx === 0) return
+
+  if (isTextBlock(props.page.blocks[blockIdx-1].type)) {
     const prevBlockContentLength = blockElements.value[blockIdx-1].getTextContent().length
-    props.page.blocks[blockIdx-1].details.value = ('<p>' + (props.page.blocks[blockIdx-1] as any).details.value.replace('<p>', '').replace('</p>', '') + blockElements.value[blockIdx].getHtmlContent().replace('<p>', '').replace('</p>', '') + '</p>').replace('</strong><strong>', '').replace('</em><em>', '')
+    props.page.blocks[blockIdx-1].details.value = ('<p>' + (props.page.blocks[blockIdx-1] as any).details.value.replace('<p>', '').replace('</p>', '') + blockElements.value[blockIdx].getHtmlContent().replaceAll(/\<br.*?\>/g, '').replace('<p>', '').replace('</p>', '') + '</p>').replace('</strong><strong>', '').replace('</em><em>', '')
     setTimeout(() => {
       blockElements.value[blockIdx-1].setCaretPos(prevBlockContentLength)
       props.page.blocks.splice(blockIdx, 1)
     })
-  } else if ([BlockType.H1, BlockType.H2].includes(props.page.blocks[blockIdx-1].type)) {
+  } else if ([BlockType.H1, BlockType.H2, BlockType.H3].includes(props.page.blocks[blockIdx-1].type)) {
     const prevBlockContentLength = (props.page.blocks[blockIdx-1] as any).details.value.length
     props.page.blocks[blockIdx-1].details.value += blockElements.value[blockIdx].getTextContent()
     setTimeout(() => {
@@ -110,7 +130,7 @@ function split (blockIdx: number) {
   const caretPos = blockElements.value[blockIdx].getCaretPos()
   insertBlock(blockIdx)
   props.page.blocks[blockIdx+1].details.value = (caretPos.tag ? `<p><${caretPos.tag}>` : '<p>') + props.page.blocks[blockIdx].details.value?.slice(caretPos.pos)
-  if (props.page.blocks[blockIdx].type === BlockType.Text) {
+  if (isTextBlock(props.page.blocks[blockIdx].type)) {
     props.page.blocks[blockIdx].details.value = props.page.blocks[blockIdx].details.value?.slice(0, caretPos.pos) + (caretPos.tag ? `</${caretPos.tag}></p>` : '</p>')
   } else {
     props.page.blocks[blockIdx].details.value = props.page.blocks[blockIdx].details.value?.slice(0, caretPos.pos) + (caretPos.tag ? `</${caretPos.tag}></p>` : '')

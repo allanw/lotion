@@ -10,7 +10,8 @@ import {
   BiTypeH2,
   BiTypeH3,
   BiHr,
-  CoListNumbered
+  CoListNumbered,
+  BiQuote
 } from "oh-vue-icons/icons"
 import App from './App.vue'
 import './index.css'
@@ -26,6 +27,7 @@ addIcons(
   BiTypeH3,
   BiHr,
   CoListNumbered,
+  BiQuote
 )
 
 const app = createApp(App)
