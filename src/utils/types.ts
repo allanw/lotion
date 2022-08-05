@@ -35,7 +35,7 @@ export const BlockComponents = {
   [BlockType.Quote]: QuoteBlock,
 }
 
-export const textBlockMap = [BlockType.Text, BlockType.Quote]
+export const textBlockMap = [BlockType.Text, BlockType.Quote, BlockType.OrderedList]
 
 export const isTextBlock = (type: string) => {
   return textBlockMap.some(textBlock => textBlock === type)
