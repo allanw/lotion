@@ -30,7 +30,7 @@ const markdownBlocks = computed(() => {
             .replaceAll('<em>', '*')
             .replaceAll('</em>', '*')
             .replaceAll(/\<br.*?\>/g, '')
-            .replaceAll(/\<ol>/g, '')
+            .replaceAll(/\<ol>/g, '1. ')
             .replaceAll(/\<ol start="(\d+)"\>/g, '$1. ')
             .replaceAll('</ol>', '')
             .replaceAll(/\<li>/g, '')

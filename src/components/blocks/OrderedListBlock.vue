@@ -6,6 +6,7 @@
 <script setup lang="ts">
 import { PropType } from 'vue'
 import { Block } from '@/utils/types'
+import Editor from "../elements/Editor.vue";
 
 const props = defineProps({
   block: {
