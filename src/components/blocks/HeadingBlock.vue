@@ -30,6 +30,7 @@ const headingConfig = {
   // Irrelevant BlockTypes
   [BlockType.Text]: null,
   [BlockType.Divider]: null,
+  [BlockType.OrderedList]: null,
 }
 
 const props = defineProps({

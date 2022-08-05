@@ -137,6 +137,11 @@ const defaultOptions = [
     callback: () => setBlockType(BlockType.H3),
   }, {
     type: 'Turn into',
+    icon: 'co-list-numbered',
+    label: 'Ordered list',
+    callback: () => setBlockType(BlockType.OrderedList)
+  }, {
+    type: 'Turn into',
     icon: 'bi-hr',
     label: 'Divider',
     callback: () => setBlockType(BlockType.Divider),

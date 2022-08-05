@@ -64,7 +64,7 @@ const emit = defineEmits([
 ])
 
 function getFirstChild () {
-  if (props.block.type === BlockType.Text) {
+  if (props.block.type === BlockType.Text || props.block.type === BlockType.OrderedList) {
     if ((content.value as any).$el.firstChild.firstChild.childNodes.length > 1) {
       return (content.value as any).$el.firstChild.firstChild.firstChild
     } else {
@@ -77,7 +77,7 @@ function getFirstChild () {
 }
 
 function getLastChild () {
-  if (props.block.type === BlockType.Text) {
+  if (props.block.type === BlockType.Text || props.block.type === BlockType.OrderedList) {
     if ((content.value as any).$el.firstChild.firstChild.childNodes.length > 1) {
       return (content.value as any).$el.firstChild.firstChild.lastChild
     } else {
@@ -90,7 +90,7 @@ function getLastChild () {
 }
 
 function getInnerContent () {
-  if (props.block.type === BlockType.Text) {
+  if (props.block.type === BlockType.Text || props.block.type === BlockType.OrderedList) {
     return (content.value as any).$el.firstChild.firstChild.firstChild
   } else {
     return (content.value as any).$el.firstChild || content.value.$el
@@ -152,7 +152,7 @@ function keyDownHandler (event:KeyboardEvent) {
 }
 
 function isContentBlock () {
-  return [BlockType.Text, BlockType.H1, BlockType.H2, BlockType.H3].includes(props.block.type)
+  return [BlockType.Text, BlockType.H1, BlockType.H2, BlockType.H3, BlockType.OrderedList].includes(props.block.type)
 }
 
 const content = ref<any>(null)
@@ -298,7 +298,7 @@ function getCaretCoordinates () {
 function getCaretPos () {
   const selection = window.getSelection()
   if (selection) {
-    if (props.block.type === BlockType.Text) {
+    if (props.block.type === BlockType.Text || props.block.type === BlockType.OrderedList) {
       let offsetNode, offset = 0, tag = null
       let selectedNode = selection.anchorNode
       if (['STRONG', 'EM'].includes(selectedNode?.parentElement?.tagName as string)) {
@@ -327,7 +327,7 @@ function getCaretPos () {
 function getCaretPosWithoutTags () {
   const selection = window.getSelection()
   if (selection) {
-    if (props.block.type === BlockType.Text) {
+    if (props.block.type === BlockType.Text || props.block.type === BlockType.OrderedList) {
       let offsetNode, offset = 0, tag = null
       let selectedNode = selection.anchorNode
       if (['STRONG', 'EM'].includes(selectedNode?.parentElement?.tagName as string)) {
@@ -354,7 +354,7 @@ function getCaretPosWithoutTags () {
 function setCaretPos (caretPos:number) {
   const innerContent = getInnerContent()
   if (innerContent) {
-    if (props.block.type === BlockType.Text) {
+    if (props.block.type === BlockType.Text || props.block.type === BlockType.OrderedList) {
       let offsetNode, offset = 0
       const numNodes = (content.value as any).$el.firstChild.firstChild.childNodes.length
       for (const [i, node] of (content.value as any).$el.firstChild.firstChild.childNodes.entries()) {
@@ -425,13 +425,21 @@ function parseMarkdown (event:KeyboardEvent) {
     ;(content.value as any).innerText = newContent
     props.block.details.value = newContent
   }
-
+  const handleOrderedListContent = (blockType: typeof BlockType ) => {
+    emit('setBlockType', blockType)
+    const newContent = textContent.replace(/^\d+\.\s(.*)$/, '$1')
+    ;(content.value as any).innerText = newContent
+    props.block.details.value = newContent
+  }
   if (textContent.match(headingRegexpMap[BlockType.H1]) && event.key === ' ') {
     handleHeadingContent(BlockType.H1)
   } else if (textContent.match(headingRegexpMap[BlockType.H2]) && event.key === ' ') {
     handleHeadingContent(BlockType.H2)
   } else if (textContent.match(headingRegexpMap[BlockType.H3]) && event.key === ' ') {
     handleHeadingContent(BlockType.H3)
+  } else if (textContent.match(/^(\d+\.+)$/) && event.key === ' ') {
+    emit('setBlockType', BlockType.OrderedList);
+    handleOrderedListContent(BlockType.OrderedList)
   } else if (textContent.match(/^---$/)) {
     emit('setBlockType', BlockType.Divider);
     (content.value as any).innerText = ''

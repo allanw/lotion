@@ -75,7 +75,7 @@ function insertBlock (blockIdx: number) {
 }
 
 function setBlockType (blockIdx: number, type: BlockType) {
-  if (props.page.blocks[blockIdx].type === BlockType.Text) {
+  if (props.page.blocks[blockIdx].type === BlockType.Text || type === BlockType.OrderedList) {
     props.page.blocks[blockIdx].details.value = blockElements.value[blockIdx].getTextContent()
   }
   props.page.blocks[blockIdx].type = type

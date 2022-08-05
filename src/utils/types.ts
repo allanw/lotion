@@ -1,6 +1,7 @@
 import TextBlock from '@/components/blocks/TextBlock.vue'
 import DividerBlock from '@/components/blocks/DividerBlock.vue'
 import HeadingBlock from '@/components/blocks/HeadingBlock.vue'
+import OrderedListBlock from '@/components/blocks/OrderedListBlock.vue'
 
 export interface Block {
   type: BlockType;
@@ -13,6 +14,7 @@ export enum BlockType {
   H2 = 'H2',
   H3 = 'H3',
   Divider = 'DIVIDER',
+  OrderedList = 'ORDERED_LIST'
 }
 
 export interface Details {
@@ -25,4 +27,5 @@ export const BlockComponents = {
   [BlockType.H2]: HeadingBlock,
   [BlockType.H3]: HeadingBlock,
   [BlockType.Divider]: DividerBlock,
+  [BlockType.OrderedList]: OrderedListBlock,
 }

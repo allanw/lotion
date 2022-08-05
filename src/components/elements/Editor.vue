@@ -11,6 +11,8 @@ import Text from '@tiptap/extension-text'
 import Bold from '@tiptap/extension-bold'
 import Italic from '@tiptap/extension-italic'
 import History from '@tiptap/extension-history'
+import ListItem from '@tiptap/extension-list-item'
+import OrderedList from '@tiptap/extension-ordered-list'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 
 const props = defineProps({
@@ -42,6 +44,8 @@ onMounted(() => {
       Bold,
       Italic,
       History,
+      ListItem,
+      OrderedList,
     ],
     editorProps: { 
       // Removing default behaviour for drop event

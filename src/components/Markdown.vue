@@ -17,9 +17,9 @@ const props = defineProps({
 
 const markdownBlocks = computed(() => {
   return props.page.blocks.map(block => {
-    if (block.type === BlockType.Text) {
+    if (block.type === BlockType.Text || block.type == BlockType.OrderedList) {
       return {
-        type: BlockType.Text,
+        type: block.type,
         details: {
           value: (block.details.value as string)
             .replaceAll('<p>', '')
@@ -29,6 +29,11 @@ const markdownBlocks = computed(() => {
             .replaceAll('<em>', '*')
             .replaceAll('</em>', '*')
             .replaceAll(/\<br.*?\>/g, '')
+            .replaceAll(/\<ol>/g, '')
+            .replaceAll(/\<ol start="(\d+)"\>/g, '$1. ')
+            .replaceAll('</ol>', '')
+            .replaceAll(/\<li>/g, '')
+            .replaceAll(/\<\/li>/g, ''),
         }
       }
     } else {
