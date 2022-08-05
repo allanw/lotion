@@ -453,7 +453,7 @@ function parseMarkdown (event:KeyboardEvent) {
   } else if (textContent.match(markdownRegexpMap[BlockType.Divider])) {
     handleMarkdownContent(BlockType.Divider)
     props.block.details.value = ''
-  } else if (textContent.match(markdownRegexpMap[BlockType.OrderedList) && event.key === ' ') {
+  } else if (textContent.match(markdownRegexpMap[BlockType.OrderedList]) && event.key === ' ') {
     emit('setBlockType', BlockType.OrderedList);
     handleOrderedListContent(BlockType.OrderedList)
   } else if (event.key === '/') {
