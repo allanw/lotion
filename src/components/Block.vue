@@ -36,7 +36,7 @@
 
 <script setup lang="ts">
 import { ref, PropType } from 'vue'
-import { Block, BlockType, BlockComponents } from '@/utils/types'
+import { Block, BlockType, BlockComponents, isTextBlock } from '@/utils/types'
 import BlockMenu from './BlockMenu.vue'
 import Tooltip from './elements/Tooltip.vue'
 
@@ -300,7 +300,11 @@ function getCaretCoordinates () {
 function getCaretPos () {
   const selection = window.getSelection()
   if (selection) {
+<<<<<<< HEAD
     if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.UnorderedList) {
+=======
+  if (isTextBlock(props.block.type)) {
+>>>>>>> aefd427acab295e5023433db15156438a3822c82
       let offsetNode, offset = 0, tag = null
       let selectedNode = selection.anchorNode
       if (['STRONG', 'EM'].includes(selectedNode?.parentElement?.tagName as string)) {
@@ -366,7 +370,7 @@ function getCaretPosWithoutTags () {
 function setCaretPos (caretPos:number) {
   const innerContent = getInnerContent()
   if (innerContent) {
-    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+  if (isTextBlock(props.block.type)) {
       let offsetNode, offset = 0
       const numNodes = (content.value as any).$el.firstChild.firstChild.childNodes.length
       for (const [i, node] of (content.value as any).$el.firstChild.firstChild.childNodes.entries()) {
@@ -426,14 +430,18 @@ function parseMarkdown (event:KeyboardEvent) {
   const textContent = getTextContent()
   if(!textContent) return
 
-  const headingRegexpMap = {
+  const markdownRegexpMap = {
     [BlockType.H1]: /^#\s(.*)$/,
     [BlockType.H2]: /^##\s(.*)$/,
     [BlockType.H3]: /^###\s(.*)$/,
+    [BlockType.Quote]: /^>\s(.*)$/,
+    [BlockType.Divider]: /^---$/,
+    [BlockType.OrderedList]: /^(\d+\.+)$/
   }
-  const handleHeadingContent = (blockType: keyof typeof headingRegexpMap) => {
+
+  const handleMarkdownContent = (blockType: keyof typeof markdownRegexpMap) => {
     emit('setBlockType', blockType)
-    const newContent = textContent.replace(headingRegexpMap[blockType], '$1')
+    const newContent = textContent.replace(markdownRegexpMap[blockType], '$1')
     ;(content.value as any).innerText = newContent
     props.block.details.value = newContent
   }

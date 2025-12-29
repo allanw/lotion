@@ -6,7 +6,7 @@
 
 <script setup lang="ts">
 import { computed, PropType } from 'vue'
-import { Block, BlockType } from '@/utils/types'
+import { Block, isTextBlock } from '@/utils/types'
 
 const props = defineProps({
   page: {
@@ -19,6 +19,7 @@ const markdownBlocks = computed(() => {
   return props.page.blocks.map(block => {
     if (block.type === BlockType.Text || block.type === BlockType.Quote || block.type === BlockType.UnorderdedList) {
       return {
+        id: block.id,
         type: block.type,
         details: {
           value: (block.details.value as string)
