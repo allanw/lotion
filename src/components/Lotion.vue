@@ -89,6 +89,10 @@ function setBlockType (blockIdx: number, type: BlockType) {
   if (type === BlockType.Divider) {
     props.page.blocks[blockIdx].details = {}
     insertBlock(blockIdx)
+  } else if (type === BlockType.UnorderdedList) {
+    console.log("UNORDERED LIST!")
+    props.page.blocks[blockIdx].value = "yep"
+    insertBlock(blockIdx)
   } else setTimeout(() => blockElements.value[blockIdx].moveToEnd())
 }
 
@@ -106,7 +110,8 @@ function merge (blockIdx: number) {
 
   if (blockIdx === 0) return
 
-  if (props.page.blocks[blockIdx-1].type === BlockType.Text || props.page.blocks[blockIdx-1].type === BlockType.Quote) {
+  if (props.page.blocks[blockIdx-1].type === BlockType.Text || props.page.blocks[blockIdx-1].type === BlockType.Quote || props.page.blocks[blockIdx-1].type === BlockType.UnorderdedList) {
+    console.log("YEAH MAN!")
     const prevBlockContentLength = blockElements.value[blockIdx-1].getTextContent().length
     props.page.blocks[blockIdx-1].details.value = ('<p>' + (props.page.blocks[blockIdx-1] as any).details.value.replace('<p>', '').replace('</p>', '') + blockElements.value[blockIdx].getHtmlContent().replaceAll(/\<br.*?\>/g, '').replace('<p>', '').replace('</p>', '') + '</p>').replace('</strong><strong>', '').replace('</em><em>', '')
     setTimeout(() => {
@@ -129,7 +134,14 @@ function merge (blockIdx: number) {
 function split (blockIdx: number) {
   const caretPos = blockElements.value[blockIdx].getCaretPos()
   insertBlock(blockIdx)
-  props.page.blocks[blockIdx+1].details.value = (caretPos.tag ? `<p><${caretPos.tag}>` : '<p>') + props.page.blocks[blockIdx].details.value?.slice(caretPos.pos)
+  console.log(props.page.blocks[blockIdx].type)
+  if (props.page.blocks[blockIdx].type === BlockType.UnorderdedList) {
+    console.log("YEP!")
+    props.page.blocks[blockIdx+1].details.value = (caretPos.tag ? `<${caretPos.tag}>` : '') + props.page.blocks[blockIdx].details.value?.slice(caretPos.pos)
+  }
+  else {
+    props.page.blocks[blockIdx+1].details.value = (caretPos.tag ? `<p><${caretPos.tag}>` : '<p>') + props.page.blocks[blockIdx].details.value?.slice(caretPos.pos)
+  }
   if (props.page.blocks[blockIdx].type === BlockType.Text || props.page.blocks[blockIdx].type === BlockType.Quote) {
     props.page.blocks[blockIdx].details.value = props.page.blocks[blockIdx].details.value?.slice(0, caretPos.pos) + (caretPos.tag ? `</${caretPos.tag}></p>` : '</p>')
   } else {

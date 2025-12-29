@@ -149,6 +149,12 @@ const defaultOptions = [
     label: 'Quote',
     callback: () => setBlockType(BlockType.Quote),
   },
+  {
+   type: 'Turn into',
+   icon: 'co-list',
+   label: 'Unordered list',
+   callback: () => setBlockType(BlockType.UnorderedList)
+  },
 ]
 
 const fuzzySearch = new Fuse(defaultOptions, {

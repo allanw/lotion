@@ -2,6 +2,7 @@ import TextBlock from '@/components/blocks/TextBlock.vue'
 import DividerBlock from '@/components/blocks/DividerBlock.vue'
 import HeadingBlock from '@/components/blocks/HeadingBlock.vue'
 import QuoteBlock from '@/components/blocks/QuoteBlock.vue'
+import UnorderedListBlock from '@/components/blocks/UnorderedListBlock.vue'
 
 
 export interface Block {
@@ -15,7 +16,8 @@ export enum BlockType {
   H2 = 'H2',
   H3 = 'H3',
   Divider = 'DIVIDER',
-  Quote = 'QUOTE'
+  Quote = 'QUOTE',
+  UnorderedList = 'UNORDERED_LIST',
 }
 
 export interface Details {
@@ -29,4 +31,5 @@ export const BlockComponents = {
   [BlockType.H3]: HeadingBlock,
   [BlockType.Divider]: DividerBlock,
   [BlockType.Quote]: QuoteBlock,
+  [BlockType.UnorderedList]: UnorderedListBlock,
 }

@@ -31,6 +31,7 @@ const headingConfig = {
   [BlockType.Text]: null,
   [BlockType.Divider]: null,
   [BlockType.Quote]: null,
+  [BlockType.UnorderedList]: null,
 }
 
 const props = defineProps({

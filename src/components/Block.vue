@@ -63,7 +63,8 @@ const emit = defineEmits([
 ])
 
 function getFirstChild () {
-  if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+  if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.OrderedList) {
+    console.log("FUZZ: " + (content.value as any))
     if ((content.value as any).$el.firstChild.firstChild.childNodes.length > 1) {
       return (content.value as any).$el.firstChild.firstChild.firstChild
     } else {
@@ -76,7 +77,7 @@ function getFirstChild () {
 }
 
 function getLastChild () {
-  if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+  if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.UnorderedList) {
     if ((content.value as any).$el.firstChild.firstChild.childNodes.length > 1) {
       return (content.value as any).$el.firstChild.firstChild.lastChild
     } else {
@@ -89,7 +90,7 @@ function getLastChild () {
 }
 
 function getInnerContent () {
-  if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+  if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.UnorderedList) {
     return (content.value as any).$el.firstChild.firstChild.firstChild
   } else {
     return (content.value as any).$el.firstChild
@@ -153,7 +154,7 @@ function keyDownHandler (event:KeyboardEvent) {
 }
 
 function isContentBlock () {
-  return [BlockType.Text, BlockType.Quote, BlockType.H1, BlockType.H2, BlockType.H3].includes(props.block.type)
+  return [BlockType.Text, BlockType.Quote, BlockType.H1, BlockType.H2, BlockType.H3, BlockType.UnorderdedList].includes(props.block.type)
 }
 
 const content = ref<any>(null)
@@ -299,7 +300,7 @@ function getCaretCoordinates () {
 function getCaretPos () {
   const selection = window.getSelection()
   if (selection) {
-    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.UnorderedList) {
       let offsetNode, offset = 0, tag = null
       let selectedNode = selection.anchorNode
       if (['STRONG', 'EM'].includes(selectedNode?.parentElement?.tagName as string)) {
@@ -333,7 +334,7 @@ function getCaretPos () {
 function getCaretPosWithoutTags () {
   const selection = window.getSelection()
   if (selection) {
-    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.UnorderedList) {
       let offsetNode, offset = 0, tag = null
       let selectedNode = selection.anchorNode
       if (['STRONG', 'EM'].includes(selectedNode?.parentElement?.tagName as string)) {
@@ -436,7 +437,7 @@ function parseMarkdown (event:KeyboardEvent) {
     ;(content.value as any).innerText = newContent
     props.block.details.value = newContent
   }
-
+  console.log('TEXTCONTENT ' + textContent)
   if (textContent.match(headingRegexpMap[BlockType.H1]) && event.key === ' ') {
     handleHeadingContent(BlockType.H1)
   } else if (textContent.match(headingRegexpMap[BlockType.H2]) && event.key === ' ') {
@@ -446,6 +447,9 @@ function parseMarkdown (event:KeyboardEvent) {
   } else if (textContent.match(/^---$/)) {
     emit('setBlockType', BlockType.Divider);
     (content.value as any).innerText = ''
+  } else if (textContent.match(/^-$/) && event.key == ' ') {
+    emit('setBlockType', BlockType.UnorderedList);
+    console.log("it's an unordered list mate")
   } else if (event.key === '/') {
     if (menu.value && !menu.value.open) {
       menu.value.open = true
@@ -464,7 +468,7 @@ function clearSearch (searchTermLength: number, openedWithSlash: boolean = false
   setTimeout(() => {
     const originalText = (content.value as any).$el.innerText
     props.block.details.value = originalText.substring(0, startIdx) + originalText.substring(endIdx);
-    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote) {
+    if (props.block.type === BlockType.Text || props.block.type === BlockType.Quote || props.block.type === BlockType.UnorderedList) {
       props.block.details.value = `<p>${originalText.substring(0, startIdx) + originalText.substring(endIdx)}</p>`
     } else {
       (content.value as any).$el.innerText = originalText.substring(0, startIdx) + originalText.substring(endIdx)

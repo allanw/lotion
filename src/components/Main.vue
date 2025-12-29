@@ -26,7 +26,7 @@ const page = ref({
     type: BlockType.Divider,
     details: {},
   }, {
-    type: BlockType.Text,
+    type: BlockType.UnorderdedList,
     details: {
       value: '<p>👋 Welcome! This is a private page for you to play around with.</p>'
     },

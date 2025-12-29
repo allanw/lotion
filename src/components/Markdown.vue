@@ -17,7 +17,7 @@ const props = defineProps({
 
 const markdownBlocks = computed(() => {
   return props.page.blocks.map(block => {
-    if (block.type === BlockType.Text || block.type === BlockType.Quote) {
+    if (block.type === BlockType.Text || block.type === BlockType.Quote || block.type === BlockType.UnorderdedList) {
       return {
         type: block.type,
         details: {
@@ -29,6 +29,10 @@ const markdownBlocks = computed(() => {
             .replaceAll('<em>', '*')
             .replaceAll('</em>', '*')
             .replaceAll(/\<br.*?\>/g, '')
+            .replaceAll('<ul>', '')
+            .replaceAll('</ul>', '')
+            .replaceAll('<li>', '')
+            .replaceAll('</li>', ''),
         }
       }
     } else {
